@@ -253,7 +253,7 @@ class MicrosoftStoreScraper:
             ])
     
         sheet.clear()
-        sheet.update("A1", rows)
+        sheet.update(range_name="A1", values=rows)
     
         now = datetime.utcnow().isoformat() + "Z"
         meta.update("A2", now)          # value de last_update
