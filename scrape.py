@@ -13,6 +13,8 @@ def main():
         # Obtener timestamp actual
         current_time = datetime.now()
         timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        print("✅ Me llamaste!")
         
         # Imprimir timestamp
         print(f"🚀 Timestamp: {timestamp}")
