@@ -1,29 +1,53 @@
-name: Run Python Scraper
+name: Refresh Scraper
 
 on:
-  workflow_dispatch:        # botón manual
-  schedule:
-    - cron: "*/1 * * * *"  # cada 10 minutos (prueba)
+  repository_dispatch:
+    types: [refresh_data]
 
 jobs:
-  run:
+  scrape:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+      - run: |
+          pip install -r requirements.txt
 
-      - name: Run scraper
-        run: |
+      - run: |
           python scrape.py
+
+
+# name: Run Python Scraper
+
+# on:
+#   workflow_dispatch:        # botón manual
+#   schedule:
+#     - cron: "*/1 * * * *"  # cada 10 minutos (prueba)
+
+# jobs:
+#   run:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@v4
+
+#       - name: Setup Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: "3.11"
+
+#       - name: Install dependencies
+#         run: |
+#           if [ -f requirements.txt ]; then
+#             pip install -r requirements.txt
+#           fi
+
+#       - name: Run scraper
+#         run: |
+#           python scrape.py
