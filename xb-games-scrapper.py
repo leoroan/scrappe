@@ -254,11 +254,11 @@ class MicrosoftStoreScraper:
     
         sheet.clear()
         sheet.update(range_name="A1", values=rows)
-    
+
         now = datetime.utcnow().isoformat() + "Z"
-        meta.update("A2", now)          # value de last_update
-        meta.update("B3", 0)            # refresh_lock
-    
+        meta.update(range_name="B2", values=[[now]])
+        meta.update(range_name="B3", values=[[0]])
+        
         print(f"✔ Sheet '{SHEET_NAME}' actualizada con {len(self.games)} filas")
 
 # --- Ejecución ---
