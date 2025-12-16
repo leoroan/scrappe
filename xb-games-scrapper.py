@@ -230,37 +230,36 @@ class MicrosoftStoreScraper:
             time.sleep(1)
 
     def export_to_sheet(self):
-    gc = get_gsheet_client()
-
-    sheet = gc.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
-    meta = gc.open_by_key(SPREADSHEET_ID).worksheet(META_SHEET)
-
-    rows = [[
-        "ID", "Title", "Original Price", "Current Price",
-        "Discount %", "Offer", "URL", "Image URL"
-    ]]
-
-    for g in self.games:
-        rows.append([
-            g.product_id,
-            g.title,
-            g.original_price,
-            g.current_price,
-            round(g.discount_percentage, 2),  # NUMÉRICO
-            g.offer_text,
-            g.url,
-            g.image_url
-        ])
-
-    sheet.clear()
-    sheet.update("A1", rows)
-
-    # actualizar meta
-    now = datetime.utcnow().isoformat() + "Z"
-    meta.update("B1", [["last_update"], [now]])
-    meta.update("B2", [["refresh_lock"], [0]])
-
-    print(f"✔ Sheet '{SHEET_NAME}' actualizada con {len(self.games)} filas")
+        gc = get_gsheet_client()
+    
+        sheet = gc.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+        meta = gc.open_by_key(SPREADSHEET_ID).worksheet(META_SHEET)
+    
+        rows = [[
+            "ID", "Title", "Original Price", "Current Price",
+            "Discount %", "Offer", "URL", "Image URL"
+        ]]
+    
+        for g in self.games:
+            rows.append([
+                g.product_id,
+                g.title,
+                g.original_price,
+                g.current_price,
+                round(g.discount_percentage, 2),
+                g.offer_text,
+                g.url,
+                g.image_url
+            ])
+    
+        sheet.clear()
+        sheet.update("A1", rows)
+    
+        now = datetime.utcnow().isoformat() + "Z"
+        meta.update("A2", now)          # value de last_update
+        meta.update("B3", 0)            # refresh_lock
+    
+        print(f"✔ Sheet '{SHEET_NAME}' actualizada con {len(self.games)} filas")
 
 # --- Ejecución ---
 if __name__ == "__main__":
