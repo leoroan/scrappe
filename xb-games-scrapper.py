@@ -7,6 +7,27 @@ import time
 from dataclasses import dataclass, asdict
 from typing import Optional, List
 from urllib.parse import urljoin, urlparse, parse_qs
+import json
+import os
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
+
+SPREADSHEET_ID = "11hC5cJWSJEgl9G2sITMUyS6ohiLbU80_No3JBfqVwAI"
+SHEET_NAME = "xb"
+META_SHEET = "_meta"
+
+def get_gsheet_client():
+    creds_info = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+
+    creds = Credentials.from_service_account_info(creds_info, scopes=scopes)
+    return gspread.authorize(creds)
+
 
 # --- 1. Definición del Objeto de Datos ---
 @dataclass
@@ -208,19 +229,41 @@ class MicrosoftStoreScraper:
 
             time.sleep(1)
 
-    def export_csv(self, filename="xbox_scrapped_full.csv"):
-        with open(filename, mode='w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                "ID", "Title", "Original Price", "Current Price",
-                "Discount %", "Offer", "URL", "Image URL"  # ← NUEVA COLUMNA
-            ])
-            for g in self.games:
-                writer.writerow(g.to_csv_row())
-        print(f"CSV guardado: {filename} con {len(self.games)} filas.")
+    def export_to_sheet(self):
+    gc = get_gsheet_client()
+
+    sheet = gc.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+    meta = gc.open_by_key(SPREADSHEET_ID).worksheet(META_SHEET)
+
+    rows = [[
+        "ID", "Title", "Original Price", "Current Price",
+        "Discount %", "Offer", "URL", "Image URL"
+    ]]
+
+    for g in self.games:
+        rows.append([
+            g.product_id,
+            g.title,
+            g.original_price,
+            g.current_price,
+            round(g.discount_percentage, 2),  # NUMÉRICO
+            g.offer_text,
+            g.url,
+            g.image_url
+        ])
+
+    sheet.clear()
+    sheet.update("A1", rows)
+
+    # actualizar meta
+    now = datetime.utcnow().isoformat() + "Z"
+    meta.update("B1", [["last_update"], [now]])
+    meta.update("B2", [["refresh_lock"], [0]])
+
+    print(f"✔ Sheet '{SHEET_NAME}' actualizada con {len(self.games)} filas")
 
 # --- Ejecución ---
 if __name__ == "__main__":
     scraper = MicrosoftStoreScraper(filter_mode="deals")
     scraper.run()
-    scraper.export_csv()
+    scraper.export_to_sheet()
