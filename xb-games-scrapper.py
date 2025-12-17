@@ -337,7 +337,6 @@ if __name__ == "__main__":
         "best-rated",
         "most-popular",
         "new-and-rising",
-        "top-selling" # top-paid estaba repetido, usé top-selling o puedes repetir top-paid
     ]
     
     scraper = MicrosoftStoreScraper(filter_types=categories_to_scrape)
