@@ -354,7 +354,7 @@ class MicrosoftStoreScraper:
             try:
                 meta = sh.worksheet(META_SHEET)
                 meta.update(range_name="B2", values=[[datetime.now().strftime("%Y-%m-%d %H:%M:%S")]])
-                meta.update(range_name="B3", values=[[len(self.games)]])
+                meta.update(range_name="B3", values=0)
             except:
                 print("Nota: No se actualizó la hoja _meta (quizás no existe).")
 
